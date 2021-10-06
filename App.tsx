@@ -51,7 +51,12 @@ export default function App(): JSX.Element {
           offsetItem.x <= moveX &&
           offsetItem.y <= moveY
         ) {
-          setGestureSelectionList(prevState => [...prevState, offsetItem.id]);
+          const isAlreadySelected = gestureSelectionList.find(
+            item => item === offsetItem.id,
+          );
+          if (!isAlreadySelected) {
+            setGestureSelectionList(prevState => [...prevState, offsetItem.id]);
+          }
         } else {
           const isAlreadySelected = gestureSelectionList.find(
             item => item === offsetItem.id,
