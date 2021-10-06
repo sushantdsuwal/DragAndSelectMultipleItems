@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "android": "react-native run-android",
-    "ios": "react-native run-ios",
+    "ios": "react-native run-ios --simulator=\"iPad (8th generation)\"",
     "start": "react-native start",
     "test": "jest",
     "clean": "watchman watch-del-all && rm -rf yarn.json && rm -rf node_modules && yarn install",

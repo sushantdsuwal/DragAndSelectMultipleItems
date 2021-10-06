@@ -6,6 +6,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   PanResponder,
+  PanResponderGestureState,
+  SafeAreaView,
 } from 'react-native';
 
 const SQUARE_SIZE = 80;
@@ -14,11 +16,6 @@ const squareList = [
   1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22,
   23, 24, 25, 26, 27,
 ];
-
-type TranslateType = {
-  translateX: number;
-  translateY: number;
-};
 
 type OffsetType = {
   id: number;
@@ -33,26 +30,20 @@ export default function App(): JSX.Element {
   const [gestureSelectionList, setGestureSelectionList] = useState<number[]>(
     [],
   );
-  const [gestureState, setGestureState] = useState<boolean>(true);
   const [offset, setOffset] = React.useState<OffsetType[]>([]);
-  const [startTranslate, setStartTranslate] = useState<TranslateType>({
-    translateX: 0,
-    translateY: 0,
-  });
-  const [translate, setTranslate] = useState<TranslateType>({
-    translateX: 0,
-    translateY: 0,
-  });
+  const [translate, setTranslate] = useState<PanResponderGestureState | null>(
+    null,
+  );
 
   useEffect(() => {
-    if (gestureState) {
+    if (translate !== null) {
       offset.map(offsetItem => {
-        const {translateX, translateY} = startTranslate;
+        const {moveX, moveY, x0, y0} = translate;
         if (
-          offsetItem.x >= translateX &&
-          offsetItem.y >= translateY &&
-          offsetItem.x <= translate.translateX &&
-          offsetItem.y <= translate.translateY
+          offsetItem.x >= x0 - SQUARE_SIZE &&
+          offsetItem.y >= y0 - SQUARE_SIZE &&
+          offsetItem.x <= moveX &&
+          offsetItem.y <= moveY
         ) {
           setGestureSelectionList(prevState => [...prevState, offsetItem.id]);
         } else {
@@ -98,37 +89,23 @@ export default function App(): JSX.Element {
   }
 
   useEffect(() => {
-    if (!gestureState) {
+    if (!translate) {
       setSelectedList(
         removeDuplicateAndMerge(selectedList, gestureSelectionList),
       );
       setGestureSelectionList([]);
     }
-  }, [gestureState]);
+  }, [translate]);
 
   const panResponder = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponderCapture: (_evt, gesture) => {
-        setGestureState(true);
-        setStartTranslate({
-          translateX: gesture.moveX - SQUARE_SIZE,
-          translateY: gesture.moveY - SQUARE_SIZE,
-        });
-        return true;
-      },
+      onMoveShouldSetPanResponderCapture: _evt => true,
       onPanResponderMove: (_evt, gesture) => {
-        setTranslate({
-          translateX: gesture.moveX,
-          translateY: gesture.moveY,
-        });
+        setTranslate({...gesture});
       },
       onPanResponderRelease: () => {
-        setGestureState(false);
-        setTranslate({
-          translateX: 0,
-          translateY: 0,
-        });
+        setTranslate(null);
       },
       onShouldBlockNativeResponder: () => true,
     }),
@@ -155,7 +132,7 @@ export default function App(): JSX.Element {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.listWrapper} {...panResponder.panHandlers}>
         {squareList.map(item => {
           return (
@@ -181,7 +158,7 @@ export default function App(): JSX.Element {
           );
         })}
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
