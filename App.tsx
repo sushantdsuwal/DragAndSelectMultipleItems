@@ -4,7 +4,6 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   TouchableOpacity,
   PanResponder,
 } from 'react-native';
@@ -156,7 +155,7 @@ export default function App(): JSX.Element {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.listWrapper} {...panResponder.panHandlers}>
         {squareList.map(item => {
           return (
@@ -182,7 +181,7 @@ export default function App(): JSX.Element {
           );
         })}
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
