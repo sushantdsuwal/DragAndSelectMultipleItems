@@ -8,6 +8,7 @@ import {
   PanResponder,
   PanResponderGestureState,
   SafeAreaView,
+  LayoutChangeEvent,
 } from 'react-native';
 
 const SQUARE_SIZE = 80;
@@ -33,6 +34,11 @@ export default function App(): JSX.Element {
   const [offset, setOffset] = React.useState<OffsetType[]>([]);
   const [translate, setTranslate] = useState<PanResponderGestureState | null>(
     null,
+  );
+
+  console.log(
+    'offset',
+    offset.find(item => item.id === 2),
   );
 
   useEffect(() => {
@@ -137,18 +143,28 @@ export default function App(): JSX.Element {
         {squareList.map(item => {
           return (
             <TouchableOpacity
-              onLayout={event => {
-                const layout = event.nativeEvent.layout;
-                setOffset(prevOffset => [
-                  ...prevOffset,
-                  {
-                    id: item,
-                    x: layout.x,
-                    y: layout.y,
-                    height: layout.height,
-                    width: layout.width,
+              onLayout={(event: LayoutChangeEvent | any) => {
+                event.target.measure(
+                  (
+                    _x: number,
+                    _y: number,
+                    width: number,
+                    height: number,
+                    pageX: number,
+                    pageY: number,
+                  ) => {
+                    setOffset(prevOffset => [
+                      ...prevOffset,
+                      {
+                        id: item,
+                        x: pageX,
+                        y: pageY,
+                        width,
+                        height,
+                      },
+                    ]);
                   },
-                ]);
+                );
               }}
               onPress={() => onSelectItem(item)}
               key={item}
@@ -165,6 +181,9 @@ export default function App(): JSX.Element {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginTop: 500,
+    marginRight: 50,
+    marginLeft: 50,
   },
   listWrapper: {
     flexDirection: 'row',
